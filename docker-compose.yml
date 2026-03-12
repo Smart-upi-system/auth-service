@@ -1,10 +1,12 @@
+version: '3.8'
 
 services:
-  uws-auth-service-database:
-    image: postgres:16
-    container_name: uws-auth-service-db
+  # PostgreSQL for Auth Service
+  postgres-auth:
+    image: postgres:15-alpine
+    container_name: auth-postgres
     environment:
-      POSTGRES_DB: user_db
+      POSTGRES_DB: auth_db
       POSTGRES_USER: "root"
       POSTGRES_PASSWORD: "root"
       TZ: UTC
@@ -13,4 +15,79 @@ services:
       - "5432:5432"
     volumes:
       - D:/Project2/upi-wallet-system/auth-service/auth-service/pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user -d auth_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+        - wallet-network
 
+  # Kafka Setup
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - wallet-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    healthcheck:
+      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - wallet-network
+
+  # Auth Service
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: auth-service
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      DB_HOST: postgres-auth
+      DB_PORT: 5432
+      DB_NAME: auth_db
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      JWT_SECRET: BGiBX8GENIcKINk+z2A75yW5FeeGZWDNUdEODj0HHrE=
+      JWT_EXPIRATION: 86400000
+      JWT_REFRESH_EXPIRATION: 2592000000
+    networks:
+      - wallet-network
+    restart: unless-stopped
+
+volumes:
+  auth-db-data:
+
+networks:
+  wallet-network:
+    driver: bridge
