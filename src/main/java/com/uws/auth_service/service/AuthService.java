@@ -68,9 +68,12 @@ public class AuthService {
 
         // Access token
         String accessToken = jwtUtil.generateAccessToken(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail(), savedUser.getRole());
+        System.out.println("access token"+accessToken);
 
         // Refresh Token
         String refreshToken = jwtUtil.generateRefreshToken(savedUser.getId());
+        System.out.println("refresh token"+refreshToken);
+
         saveRefreshToken(savedUser.getId(), refreshToken);
 
         return buildAuthResponse(savedUser, accessToken, refreshToken);
@@ -102,9 +105,10 @@ public class AuthService {
                 user.getEmail(),
                 user.getRole()
         );
+        System.out.println("access token"+accessToken);
 
         String refreshToken = jwtUtil.generateRefreshToken(user.getId());
-
+        System.out.println("refresh token"+refreshToken);
         saveRefreshToken(user.getId(), refreshToken);
 
         return buildAuthResponse(user, accessToken, refreshToken);

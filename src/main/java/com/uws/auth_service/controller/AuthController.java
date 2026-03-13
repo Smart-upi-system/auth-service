@@ -37,7 +37,7 @@ public class AuthController {
      * Login a user
      * GET /auth/login
      */
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         log.info("GET /auth/login - Identifier: {}", request.getIdentifier());
         AuthResponse response = authService.login(request);
