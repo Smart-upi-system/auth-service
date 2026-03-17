@@ -35,7 +35,7 @@ public class AuthController {
 
     /**
      * Login a user
-     * GET /auth/login
+     * POST /auth/login
      */
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
