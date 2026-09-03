@@ -51,10 +51,10 @@ jobs:
           cache: maven
           server-id: github
           server-username: ${{ secrets.USERNAME }}  # this is the changes required
-          server-password: ${{ secrets.PASSWORD }} # Generates settings.xml in current directory
+#          server-password: ${{ secrets.PASSWORD }} # Generates settings.xml in current directory
 
       - name: Build and verify with Maven
-        run: mvn -B verify --file pom.xml
+        run: mvn -B verify --file pom.xml -U
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5434/auth_db
           SPRING_DATASOURCE_USERNAME: postgres
