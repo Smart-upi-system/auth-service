@@ -50,7 +50,7 @@ jobs:
           distribution: 'temurin'
           cache: maven
           server-id: github
-          server-username: ${{ secrets.USERNAME }}
+          server-username: ${{ secrets.USERNAME }}  # this is the changes required
           server-password: ${{ secrets.PASSWORD }} # Generates settings.xml in current directory
 
       - name: Build and verify with Maven
