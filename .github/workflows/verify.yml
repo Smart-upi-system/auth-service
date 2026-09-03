@@ -49,11 +49,12 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-          server-id: github # Must match the <id>github</id> in your pom.xml <repository>
-          settings-path: ${{ github.workspace }} # Generates settings.xml in current directory
+          server-id: github
+          server-username: ${{ secrets.USERNAME }}
+          server-password: ${{ secrets.PASSWORD }} # Generates settings.xml in current directory
 
       - name: Build and verify with Maven
-        run: mvn -B verify -s ${{ github.workspace }}/settings.xml --file pom.xml
+        run: mvn -B verify --file pom.xml
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5434/auth_db
           SPRING_DATASOURCE_USERNAME: postgres
