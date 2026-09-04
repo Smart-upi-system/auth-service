@@ -6,7 +6,7 @@ WORKDIR /app
 COPY pom.xml .
 # Vendor the watchlog appender (published only to the local repo, not Maven Central)
 # into the build container's local repo before dependency resolution.
-COPY lib/watchlog-appender-0.1.0.jar /tmp/watchlog-appender-0.1.0.jar
+#COPY lib/watchlog-appender-0.1.0.jar /tmp/watchlog-appender-0.1.0.jar
 RUN mvn install:install-file \
     -Dfile=/tmp/watchlog-appender-0.1.0.jar \
     -DgroupId=com.datalog \
