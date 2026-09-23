@@ -79,16 +79,23 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Install local custom JARs (if exists)
+      - name: Configure Maven for GitHub Packages
         run: |
-          if [ -f lib/watchlog-appender-0.1.0.jar ]; then
-            mvn install:install-file \
-              -Dfile=lib/watchlog-appender-0.1.0.jar \
-              -DgroupId=com.datalog \
-              -DartifactId=watchlog-appender \
-              -Dversion=0.1.0 \
-              -Dpackaging=jar
-          fi
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml << 'EOF'
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                                https://maven.apache.org/xsd/settings-1.0.0.xsd">
+            <servers>
+              <server>
+                <id>github</id>
+                <username>DarshThakur21</username>
+                <password>${{ secrets.GITHUB_TOKEN }}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
 
       - name: Build and verify with Maven
         run: mvn -B clean verify --file pom.xml
@@ -105,6 +112,8 @@ jobs:
           SPRING_KAFKA_BOOTSTRAP_SERVERS: localhost:9092
           SPRING_AUTOCONFIGURE_EXCLUDE: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
           SPRING_CLOUD_CONFIG_ENABLED: "false"
+          WATCHLOG_URL: http://localhost:7000
+          WATCHLOG_SERVICE_ID: 00000000-0000-0000-0000-000000000000
 
       - name: Upload JAR artifact
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
