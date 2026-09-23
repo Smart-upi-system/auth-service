@@ -103,15 +103,15 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/auth_db
           SPRING_DATASOURCE_USERNAME: postgres
           SPRING_DATASOURCE_PASSWORD: postgres
-          SPRING_DATA_REDIS_HOST: localhost
-          SPRING_DATA_REDIS_PORT: 6379
-          SPRING_DATA_REDIS_PASSWORD: ""
-          EUREKA_CLIENT_ENABLED: "false"
-          EUREKA_CLIENT_REGISTER_WITH_EUREKA: "false"
-          EUREKA_CLIENT_FETCH_REGISTRY: "false"
+#          SPRING_DATA_REDIS_HOST: localhost
+#          SPRING_DATA_REDIS_PORT: 6379
+#          SPRING_DATA_REDIS_PASSWORD: ""
+#          EUREKA_CLIENT_ENABLED: "false"
+#          EUREKA_CLIENT_REGISTER_WITH_EUREKA: "false"
+#          EUREKA_CLIENT_FETCH_REGISTRY: "false"
           SPRING_KAFKA_BOOTSTRAP_SERVERS: localhost:9092
-          SPRING_AUTOCONFIGURE_EXCLUDE: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
-          SPRING_CLOUD_CONFIG_ENABLED: "false"
+#          SPRING_AUTOCONFIGURE_EXCLUDE: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+#          SPRING_CLOUD_CONFIG_ENABLED: "false"
           WATCHLOG_URL: http://localhost:7000
           WATCHLOG_SERVICE_ID: 00000000-0000-0000-0000-000000000000
 
