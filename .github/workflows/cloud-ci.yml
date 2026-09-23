@@ -98,7 +98,7 @@ jobs:
           EOF
 
       - name: Build and verify with Maven
-        run: mvn -B clean verify --file pom.xml
+        run: mvn -B clean verify --file pom.xml -DskipTests=false
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/auth_db
           SPRING_DATASOURCE_USERNAME: postgres
