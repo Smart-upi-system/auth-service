@@ -25,6 +25,7 @@ public class AuthController {
     /**
      * Register a new user
      * POST /auth/register
+     * this is the endpoint that will be called by the auth-service to register a new user
      */
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
