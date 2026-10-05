@@ -37,6 +37,7 @@ public class AuthController {
     /**
      * Login a user
      * POST /auth/login
+     * this is the endpoint that will be called by the auth-service to login a user
      */
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
