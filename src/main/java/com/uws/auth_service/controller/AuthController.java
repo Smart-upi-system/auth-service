@@ -49,6 +49,7 @@ public class AuthController {
     /**
      * Refresh access token
      * POST /auth/refresh
+     * this is the endpoint that will be called by the auth-service to refresh the access token using the refresh token
      */
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
