@@ -61,6 +61,7 @@ public class AuthController {
     /**
      * Logout user (revoke refresh token)
      * POST /auth/logout
+     * this is the endpoint that will be called by the auth-service to logout a user (revoke refresh token)
      */
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(@RequestBody(required = false) RefreshTokenRequest request) {
