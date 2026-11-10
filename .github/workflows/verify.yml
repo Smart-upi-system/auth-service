@@ -129,6 +129,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ./Dockerfile.ci
           push: true
           tags: |
             darshthakur/auth-service:latest

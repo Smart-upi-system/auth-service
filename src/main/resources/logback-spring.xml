@@ -13,7 +13,9 @@
     -->
     <appender name="WATCHLOG" class="com.datalog.watchlog.appender.WatchlogHttpAppender">
         <url>${WATCHLOG_URL:-http://localhost:7000}</url>
-        <serviceId>${WATCHLOG_SERVICE_ID}</serviceId>
+<!--        defined directly in docker-->
+<!--        <serviceId>${WATCHLOG_SERVICE_ID}</serviceId>-->
+        <serviceId>3305bdb9-b351-4772-b918-044f08e95759</serviceId>
     </appender>
 
     <root level="INFO">
