@@ -125,14 +125,13 @@
 
 	</dependencies>
 
-<!--    &lt;!&ndash; GitHub Packages repository for watchlog-appender &ndash;&gt;-->
-<!--    <repositories>-->
-<!--        <repository>-->
-<!--            <id>github</id>-->
-<!--            <name>GitHub Packages</name>-->
-<!--            <url>https://maven.pkg.github.com/DarshThakur21/watchlog-appender-maven-dependecy</url>-->
-<!--        </repository>-->
-<!--    </repositories>-->
+    <repositories>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/DarshThakur21/watchlog-appender-maven-dependecy</url>
+        </repository>
+    </repositories>
 
     <dependencyManagement>
         <dependencies>
