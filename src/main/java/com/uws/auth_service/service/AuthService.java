@@ -5,6 +5,8 @@ import com.uws.auth_service.dto.AuthResponse;
 import com.uws.auth_service.dto.LoginRequest;
 import com.uws.auth_service.dto.RefreshTokenRequest;
 import com.uws.auth_service.dto.RegisterRequest;
+import com.uws.auth_service.dto.SetUpiPinRequest;
+import com.uws.auth_service.dto.UpiPinStatusResponse;
 import com.uws.auth_service.event.UserCreatedEvent;
 import com.uws.auth_service.exception.DuplicateUserException;
 import com.uws.auth_service.exception.InvalidCredentialsException;
@@ -35,6 +37,61 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+
+    @Transactional
+    public UpiPinStatusResponse setUpiPin(String userId, SetUpiPinRequest request) {
+        User user = getUser(userId);
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new InvalidCredentialsException("Current account password is incorrect");
+        }
+        if (!request.getNewPin().equals(request.getConfirmPin())) {
+            throw new InvalidCredentialsException("UPI PIN confirmation does not match");
+        }
+
+        user.setUpiPinHash(passwordEncoder.encode(request.getNewPin()));
+        user.setUpiPinFailedAttempts(0);
+        user.setUpiPinLockedUntil(null);
+        userRepository.save(user);
+
+        log.info("UPI PIN configured for user: {}", userId);
+        return buildUpiPinStatus(user);
+    }
+
+    @Transactional(readOnly = true)
+    public UpiPinStatusResponse getUpiPinStatus(String userId) {
+        return buildUpiPinStatus(getUser(userId));
+    }
+
+    @Transactional
+    public void verifyUpiPin(String userId, String pin) {
+        User user = getUser(userId);
+        LocalDateTime now = LocalDateTime.now();
+
+        if (user.getUpiPinHash() == null || user.getUpiPinHash().isBlank()) {
+            throw new InvalidCredentialsException("UPI PIN is not configured");
+        }
+        if (user.getUpiPinLockedUntil() != null && user.getUpiPinLockedUntil().isAfter(now)) {
+            throw new InvalidCredentialsException("UPI PIN is temporarily locked");
+        }
+
+        if (passwordEncoder.matches(pin, user.getUpiPinHash())) {
+            user.setUpiPinFailedAttempts(0);
+            user.setUpiPinLockedUntil(null);
+            userRepository.save(user);
+            return;
+        }
+
+        int failedAttempts = user.getUpiPinFailedAttempts() == null
+                ? 0 : user.getUpiPinFailedAttempts();
+        failedAttempts++;
+        user.setUpiPinFailedAttempts(failedAttempts);
+        if (failedAttempts >= 5) {
+            user.setUpiPinLockedUntil(now.plusMinutes(15));
+        }
+        userRepository.save(user);
+        throw new InvalidCredentialsException("Invalid UPI PIN");
+    }
 
     /**
      * Register a new user
@@ -187,6 +244,19 @@ public class AuthService {
 
         refreshTokenRepository.save(refreshToken);
         log.debug("Refresh token saved for user: {}", userId);
+    }
+
+    private User getUser(String userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+    }
+
+    private UpiPinStatusResponse buildUpiPinStatus(User user) {
+        return UpiPinStatusResponse.builder()
+                .configured(user.getUpiPinHash() != null && !user.getUpiPinHash().isBlank())
+                .locked(user.getUpiPinLockedUntil() != null
+                        && user.getUpiPinLockedUntil().isAfter(LocalDateTime.now()))
+                .build();
     }
 
     private AuthResponse buildAuthResponse(User user, String accessToken, String refreshToken) {

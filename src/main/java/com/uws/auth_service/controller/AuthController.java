@@ -4,6 +4,9 @@ import com.uws.auth_service.dto.AuthResponse;
 import com.uws.auth_service.dto.LoginRequest;
 import com.uws.auth_service.dto.RefreshTokenRequest;
 import com.uws.auth_service.dto.RegisterRequest;
+import com.uws.auth_service.dto.SetUpiPinRequest;
+import com.uws.auth_service.dto.UpiPinStatusResponse;
+import com.uws.auth_service.dto.VerifyUpiPinRequest;
 import com.uws.auth_service.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +72,38 @@ public class AuthController {
         String refreshToken = request != null ? request.getRefreshToken() : null;
         authService.logout(refreshToken);
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
+    }
+
+    /**
+     * Returns whether the authenticated user has configured a wallet UPI PIN.
+     */
+    @GetMapping("/upi-pin/status")
+    public ResponseEntity<UpiPinStatusResponse> getUpiPinStatus(
+            @RequestHeader("X-User-Id") String userId) {
+        return ResponseEntity.ok(authService.getUpiPinStatus(userId));
+    }
+
+    /**
+     * Creates or changes the wallet UPI PIN. The account password is required
+     * so a stolen access token alone cannot silently replace the PIN.
+     */
+    @PutMapping("/upi-pin")
+    public ResponseEntity<UpiPinStatusResponse> setUpiPin(
+            @RequestHeader("X-User-Id") String userId,
+            @Valid @RequestBody SetUpiPinRequest request) {
+        return ResponseEntity.ok(authService.setUpiPin(userId, request));
+    }
+
+    /**
+     * Internal verification endpoint used by Transaction Service before an
+     * outgoing transfer is started. The PIN itself is never returned or stored.
+     */
+    @PostMapping("/upi-pin/verify")
+    public ResponseEntity<Map<String, Boolean>> verifyUpiPin(
+            @RequestHeader("X-User-Id") String userId,
+            @Valid @RequestBody VerifyUpiPinRequest request) {
+        authService.verifyUpiPin(userId, request.getPin());
+        return ResponseEntity.ok(Map.of("verified", true));
     }
 
     /**

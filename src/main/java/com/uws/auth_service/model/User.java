@@ -41,6 +41,16 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(name = "upi_pin_hash", length = 100)
+    private String upiPinHash;
+
+    @Column(name = "upi_pin_failed_attempts", nullable = false)
+    @Builder.Default
+    private Integer upiPinFailedAttempts = 0;
+
+    @Column(name = "upi_pin_locked_until")
+    private java.time.LocalDateTime upiPinLockedUntil;
+
     @Column(nullable = false, length = 100)
     private String name;
 
